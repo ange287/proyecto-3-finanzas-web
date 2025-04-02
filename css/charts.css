@@ -1,0 +1,132 @@
+/* Estilos específicos para la sección de gráficos */
+.chart-panel {
+    padding: 2rem;
+    background-color: #f8f9fa;
+}
+
+.chart-section {
+    background: white;
+    border-radius: 12px;
+    padding: 2rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    margin-bottom: 2rem;
+}
+
+.chart-section h2 {
+    color: #333;
+    font-size: 1.4rem;
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+
+/* Grid para organizar los gráficos */
+.charts-container {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr); /* 2 columnas */
+    gap: 2rem;
+    max-width: 1400px; /* Máximo ancho para mantener proporciones */
+    margin: 0 auto;
+}
+
+.chart-wrapper {
+    background-color: white;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    min-height: 400px; /* Altura mínima para mantener proporción */
+}
+
+/* Hacer que los gráficos de tendencia y comparación ocupen todo el ancho */
+.chart-section:nth-child(2),
+.chart-section:nth-child(3) {
+    grid-column: 1 / -1;
+}
+
+canvas {
+    width: 100% !important;
+    height: 350px !important; /* Altura base para los gráficos */
+}
+
+/* Gráficos que ocupan todo el ancho tienen más altura */
+.chart-section:nth-child(2) canvas,
+.chart-section:nth-child(3) canvas {
+    height: 400px !important;
+}
+
+/* Ajustes responsive */
+@media (max-width: 1200px) {
+    .charts-container {
+        grid-template-columns: 1fr; /* Una columna en pantallas más pequeñas */
+        padding: 1rem;
+    }
+
+    .chart-wrapper {
+        padding: 1.5rem;
+    }
+
+    canvas {
+        height: 300px !important;
+    }
+
+    .chart-section:nth-child(2) canvas,
+    .chart-section:nth-child(3) canvas {
+        height: 350px !important;
+    }
+}
+
+@media (max-width: 768px) {
+    .chart-panel {
+        padding: 1rem;
+    }
+
+    .chart-section {
+        padding: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .chart-wrapper {
+        padding: 1rem;
+        min-height: 300px;
+    }
+
+    canvas {
+        height: 250px !important;
+    }
+
+    .chart-section:nth-child(2) canvas,
+    .chart-section:nth-child(3) canvas {
+        height: 300px !important;
+    }
+}
+
+/* Estilos para los tooltips y leyendas de los gráficos */
+.chart-tooltip {
+    background-color: rgba(255, 255, 255, 0.95) !important;
+    border-radius: 8px !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+    padding: 8px 12px !important;
+    font-size: 0.9rem !important;
+}
+
+.chart-legend {
+    margin-top: 1rem;
+    padding: 1rem;
+    border-top: 1px solid #eee;
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.chart-legend-item {
+    display: flex;
+    align-items: center;
+    margin: 0 0.5rem;
+}
+
+.chart-legend-color {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    margin-right: 0.5rem;
+}
