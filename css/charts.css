@@ -34,11 +34,12 @@
     border-radius: 12px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     min-height: 400px; /* Altura mínima para mantener proporción */
+    width: 100%; /* Asegurar que ocupe todo el ancho disponible */
 }
 
 /* Hacer que los gráficos de tendencia y comparación ocupen todo el ancho */
-.chart-section:nth-child(2),
-.chart-section:nth-child(3) {
+.chart-section:nth-child(3),
+.chart-section:nth-child(4) {
     grid-column: 1 / -1;
 }
 
@@ -48,8 +49,8 @@ canvas {
 }
 
 /* Gráficos que ocupan todo el ancho tienen más altura */
-.chart-section:nth-child(2) canvas,
-.chart-section:nth-child(3) canvas {
+.chart-section:nth-child(3) canvas,
+.chart-section:nth-child(4) canvas {
     height: 400px !important;
 }
 
@@ -68,8 +69,8 @@ canvas {
         height: 300px !important;
     }
 
-    .chart-section:nth-child(2) canvas,
-    .chart-section:nth-child(3) canvas {
+    .chart-section:nth-child(3) canvas,
+    .chart-section:nth-child(4) canvas {
         height: 350px !important;
     }
 }
@@ -93,8 +94,8 @@ canvas {
         height: 250px !important;
     }
 
-    .chart-section:nth-child(2) canvas,
-    .chart-section:nth-child(3) canvas {
+    .chart-section:nth-child(3) canvas,
+    .chart-section:nth-child(4) canvas {
         height: 300px !important;
     }
 }

@@ -17,6 +17,7 @@ class App {
         this.estimateForm = new EstimateForm(this.handleEstimateSubmit.bind(this));
         this.chartPanel = new ChartPanel();
         this.categoryManager = new CategoryManager(this.handleCategoryChange.bind(this));
+        this.sidebar = new Sidebar(this.handleTabChange.bind(this));
     }
 
     async init() {
@@ -55,9 +56,8 @@ class App {
         appContainer.innerHTML = '';
 
         // Crear sidebar
-        const sidebar = new Sidebar(this.handleTabChange.bind(this));
-        const sidebarElement = await sidebar.render();
-        appContainer.appendChild(sidebarElement);
+        const sidebar = await this.sidebar.render();
+        appContainer.appendChild(sidebar);
 
         // Crear contenido principal
         const mainContent = document.createElement('main');
@@ -81,64 +81,76 @@ class App {
 
     async handleTabChange(tab) {
         this.currentTab = tab;
-        const contentContainer = document.querySelector('.content-container');
-        if (!contentContainer) return;
+        const mainContent = document.querySelector('.main-content');
+        if (!mainContent) return;
 
-        // Buscar si ya existe el contenido de la pestaña
-        let existingTabContent = contentContainer.querySelector(`.tab-content[data-tab="${tab}"]`);
-
-        // Si no existe, renderizar el contenido de la pestaña
-        if (!existingTabContent) {
-            try {
-                let content;
-                switch (tab) {
-                    case 'transactions':
-                        content = await this.transactionForm.render();
-                        const transactions = await TransactionService.getTransactions();
-                        await this.transactionForm.updateTransactionsList(transactions);
-                        break;
-                    case 'estimates':
-                        content = await this.estimateForm.render();
-                        const estimates = await EstimateService.getEstimates();
-                        await this.estimateForm.updateEstimatesList(estimates);
-                        break;
-                    case 'categories':
-                        content = await this.categoryManager.render();
-                        await this.categoryManager.updateCategoriesList();
-                        break;
-                    case 'charts':
-                        content = await this.chartPanel.render();
-                        await this.updateCharts();
-                        break;
-                    default:
-                        throw new Error(`Pestaña desconocida: ${tab}`);
-                }
-
-                if (!content || !(content instanceof Node)) {
-                    throw new Error(`El contenido de la pestaña "${tab}" no es un nodo válido.`);
-                }
-
-                // Crear un contenedor para la pestaña y agregarlo al DOM
-                const tabContent = document.createElement('div');
-                tabContent.className = 'tab-content';
-                tabContent.dataset.tab = tab;
-                tabContent.appendChild(content);
-                contentContainer.appendChild(tabContent);
-            } catch (error) {
-                console.error('Error al cambiar de pestaña:', error);
-                UIService.showError('Error al cargar la pestaña');
+        // No limpiar el contenido si la pestaña ya está cargada
+        const existingTab = mainContent.querySelector(`[data-tab="${tab}"]`);
+        if (existingTab) {
+            // Ocultar todas las pestañas y mostrar la seleccionada
+            mainContent.querySelectorAll('[data-tab]').forEach(t => {
+                t.style.display = 'none';
+            });
+            existingTab.style.display = 'block';
+            
+            // Recargar datos si es necesario
+            switch (tab) {
+                case 'transactions':
+                    const transactions = await TransactionService.getTransactions();
+                    await this.transactionForm.updateTransactionsList(transactions);
+                    break;
+                case 'estimates':
+                    const estimates = await EstimateService.getEstimates();
+                    await this.estimateForm.updateEstimatesList(estimates);
+                    break;
+                case 'categories':
+                    await this.categoryManager.updateCategoriesList();
+                    break;
+                case 'charts':
+                    await this.updateCharts();
+                    break;
             }
+            return;
         }
 
-        // Mostrar la pestaña actual y ocultar las demás
-        contentContainer.querySelectorAll('.tab-content').forEach(tabContent => {
-            tabContent.style.display = tabContent.dataset.tab === tab ? 'block' : 'none';
+        // Crear un nuevo contenedor para la pestaña
+        const tabContainer = document.createElement('div');
+        tabContainer.dataset.tab = tab;
+        tabContainer.style.display = 'block';
+
+        let content;
+        switch (tab) {
+            case 'transactions':
+                content = await this.transactionForm.render();
+                const transactions = await TransactionService.getTransactions();
+                await this.transactionForm.updateTransactionsList(transactions);
+                break;
+            case 'estimates':
+                content = await this.estimateForm.render();
+                const estimates = await EstimateService.getEstimates();
+                await this.estimateForm.updateEstimatesList(estimates);
+                break;
+            case 'categories':
+                content = await this.categoryManager.render();
+                await this.categoryManager.updateCategoriesList();
+                break;
+            case 'charts':
+                content = await this.chartPanel.render();
+                setTimeout(async () => {
+                    await this.updateCharts();
+                }, 0);
+                break;
+        }
+
+        if (content) {
+            tabContainer.appendChild(content);
+            mainContent.appendChild(tabContainer);
+        }
+
+        // Ocultar todas las pestañas excepto la actual
+        mainContent.querySelectorAll('[data-tab]').forEach(t => {
+            t.style.display = t.dataset.tab === tab ? 'block' : 'none';
         });
-
-        // Cargar datos actualizados cuando se cambia a las pestañas de estimaciones o categorías
-        if (tab === 'estimates' || tab === 'categories') {
-            await this.loadInitialData();
-        }
     }
 
     async handleTransactionSubmit(transactionData) {
@@ -203,12 +215,10 @@ class App {
     }
 
     async updateSidebar() {
-        const sidebar = document.querySelector('.sidebar');
-        if (sidebar) {
-            const newSidebar = new Sidebar(this.handleTabChange.bind(this));
-            newSidebar.setActiveTab(this.currentTab); // Establecer la pestaña activa antes de renderizar
-            const newSidebarElement = await newSidebar.render();
-            sidebar.replaceWith(newSidebarElement);
+        const sidebar = await this.sidebar.render();
+        const oldSidebar = document.querySelector('.sidebar');
+        if (oldSidebar) {
+            oldSidebar.replaceWith(sidebar);
         }
     }
 

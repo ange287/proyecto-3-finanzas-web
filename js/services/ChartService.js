@@ -8,42 +8,51 @@ export class ChartService {
     }
 
     async initCharts() {
-        const transactions = await TransactionService.getTransactions();
-        const monthlyData = TransactionService.processMonthlyData(transactions);
-        const categoryData = TransactionService.processCategoryData(transactions);
+        try {
+            const transactions = await TransactionService.getTransactions();
+            const monthlyData = TransactionService.processMonthlyData(transactions);
+            const categoryData = TransactionService.processCategoryData(transactions);
 
-        const today = new Date();
-        const estimates = await EstimateService.getEstimates();
-        const monthlyEstimates = estimates.filter(e =>
-            e.month === today.getMonth() + 1 &&
-            e.year === today.getFullYear()
-        );
+            const today = new Date();
+            const estimates = await EstimateService.getEstimates();
+            const monthlyEstimates = estimates.filter(e =>
+                e.month === today.getMonth() + 1 &&
+                e.year === today.getFullYear()
+            );
 
-        const comparison = {
-            labels: monthlyEstimates.map(e => UIService.formatCategoryName(e.category)),
-            estimated: monthlyEstimates.map(e => e.amount),
-            actual: monthlyEstimates.map(e => {
-                const actualTransactions = transactions.filter(t =>
-                    t.type === 'expense' &&
-                    t.category === e.category &&
-                    new Date(t.date).getMonth() + 1 === today.getMonth() + 1 &&
-                    new Date(t.date).getFullYear() === today.getFullYear()
-                );
-                return actualTransactions.reduce((sum, t) => sum + t.amount, 0);
-            })
-        };
+            const comparison = {
+                labels: monthlyEstimates.map(e => UIService.formatCategoryName(e.category)),
+                estimated: monthlyEstimates.map(e => e.amount),
+                actual: monthlyEstimates.map(e => {
+                    const actualTransactions = transactions.filter(t =>
+                        t.type === 'expense' &&
+                        t.category === e.category &&
+                        new Date(t.date).getMonth() + 1 === today.getMonth() + 1 &&
+                        new Date(t.date).getFullYear() === today.getFullYear()
+                    );
+                    return actualTransactions.reduce((sum, t) => sum + t.amount, 0);
+                })
+            };
 
-        // Verificar que los elementos <canvas> existen antes de inicializar gráficos
-        if (document.getElementById('expenseChart')) {
-            await this.updateExpenseChart(categoryData);
-        }
+            // Verificar que los elementos <canvas> existen antes de inicializar gráficos
+            if (document.getElementById('expenseChart')) {
+                await this.updateExpenseChart(categoryData);
+            }
 
-        if (document.getElementById('estimateComparisonChart')) {
-            await this.updateEstimateComparisonChart(comparison);
-        }
+            if (document.getElementById('incomeChart')) {
+                const incomeCategoryData = await this.processIncomeCategoryData();
+                await this.updateIncomeChart(incomeCategoryData);
+            }
 
-        if (document.getElementById('expenseTrendChart')) {
-            await this.updateExpenseTrendChart(monthlyData);
+            if (document.getElementById('estimateComparisonChart')) {
+                await this.updateEstimateComparisonChart(comparison);
+            }
+
+            if (document.getElementById('expenseTrendChart')) {
+                await this.updateExpenseTrendChart(monthlyData);
+            }
+        } catch (error) {
+            console.error('Error al inicializar gráficos:', error);
         }
     }
 
@@ -92,6 +101,69 @@ export class ChartService {
                 }
             }
         });
+    }
+
+    async updateIncomeChart(categoryData) {
+        const incomeChart = document.getElementById('incomeChart');
+        if (!incomeChart) return;
+
+        if (this.charts.incomeChart) {
+            this.charts.incomeChart.destroy();
+        }
+
+        this.charts.incomeChart = new Chart(incomeChart, {
+            type: 'pie',
+            data: {
+                labels: categoryData.labels,
+                datasets: [{
+                    data: categoryData.amounts,
+                    backgroundColor: [
+                        'rgba(75, 192, 192, 0.5)',
+                        'rgba(54, 162, 235, 0.5)',
+                        'rgba(255, 206, 86, 0.5)',
+                        'rgba(153, 102, 255, 0.5)',
+                        'rgba(255, 99, 132, 0.5)'
+                    ],
+                    borderColor: [
+                        'rgba(75, 192, 192, 1)',
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(255, 206, 86, 1)',
+                        'rgba(153, 102, 255, 1)',
+                        'rgba(255, 99, 132, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    tooltip: {
+                        callbacks: {
+                            label: (context) => {
+                                const value = context.raw;
+                                return UIService.formatCurrency(value);
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    async processIncomeCategoryData() {
+        const transactions = await TransactionService.getTransactions();
+        const incomeTransactions = transactions.filter(t => t.type === 'income');
+        
+        const categoryMap = new Map();
+        incomeTransactions.forEach(transaction => {
+            const currentAmount = categoryMap.get(transaction.category) || 0;
+            categoryMap.set(transaction.category, currentAmount + transaction.amount);
+        });
+
+        return {
+            labels: Array.from(categoryMap.keys()),
+            amounts: Array.from(categoryMap.values())
+        };
     }
 
     async updateEstimateComparisonChart(comparison) {

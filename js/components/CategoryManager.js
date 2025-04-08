@@ -59,13 +59,51 @@ export class CategoryManager {
 
     async updateCategoriesList() {
         try {
+            const container = document.querySelector('.categories-list');
+            if (!container) return;
+
             const categories = await CategoryService.getCategories();
-            if (categories.length === 0) {
-                await CategoryService.restoreDefaultCategories(); // Restaurar categorías si no existen
+            const expenseCategories = categories.filter(category => category.type === 'expense');
+            
+            if (expenseCategories.length === 0) {
+                container.innerHTML = '<div class="empty-message">No hay categorías de gastos. Agrega una nueva categoría o restaura las predefinidas.</div>';
+                return;
             }
-            await this.renderCategoriesList(categories);
+
+            // Agregar cada categoría directamente al contenedor
+            container.innerHTML = '';
+            expenseCategories.forEach(category => {
+                const categoryItem = document.createElement('div');
+                categoryItem.className = 'category-item';
+                categoryItem.innerHTML = `
+                    <span class="category-name">${category.name}</span>
+                    <button class="delete-category" data-id="${category.id}">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                `;
+                container.appendChild(categoryItem);
+            });
+
+            // Agregar event listeners para los botones de eliminar
+            container.querySelectorAll('.delete-category').forEach(button => {
+                button.addEventListener('click', async (e) => {
+                    const id = parseInt(e.currentTarget.dataset.id);
+                    try {
+                        await CategoryService.deleteCategory(id);
+                        const updatedCategories = await CategoryService.getCategories();
+                        await this.updateCategoriesList();
+                        if (this.onCategoryChange) {
+                            await this.onCategoryChange();
+                        }
+                        UIService.showSuccess('Categoría eliminada correctamente');
+                    } catch (error) {
+                        console.error('Error al eliminar categoría:', error);
+                        UIService.showError('Error al eliminar la categoría');
+                    }
+                });
+            });
         } catch (error) {
-            console.error('Error al actualizar la lista de categorías:', error);
+            console.error('Error al actualizar lista de categorías:', error);
             UIService.showError('Error al cargar las categorías');
         }
     }

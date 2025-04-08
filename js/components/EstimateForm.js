@@ -38,63 +38,67 @@ export class EstimateForm {
             const container = document.querySelector('.estimates-list');
             if (!container) return;
 
+            // Si no hay estimados, mostrar mensaje
             if (estimates.length === 0) {
                 container.innerHTML = '<div class="empty-message">No hay gastos estimados. Agrega uno nuevo usando el formulario superior.</div>';
                 return;
             }
 
-            // Ordenar estimaciones por fecha (más recientes primero)
+            // Ordenar estimados por fecha (más recientes primero)
             const sortedEstimates = estimates.sort((a, b) => {
                 if (a.year !== b.year) return b.year - a.year;
                 return b.month - a.month;
             });
 
-            container.innerHTML = `
-                <table class="data-table">
-                    <thead>
+            // Crear tabla
+            const table = document.createElement('table');
+            table.innerHTML = `
+                <thead>
+                    <tr>
+                        <th>Categoría</th>
+                        <th>Fecha</th>
+                        <th>Monto</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${sortedEstimates.map(estimate => `
                         <tr>
-                            <th>Categoría</th>
-                            <th>Fecha</th>
-                            <th>Monto</th>
-                            <th>Acciones</th>
+                            <td>${estimate.category}</td>
+                            <td>${estimate.month}/${estimate.year}</td>
+                            <td>$${estimate.amount.toFixed(2)}</td>
+                            <td>
+                                <button class="delete-button" data-id="${estimate.id}">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </td>
                         </tr>
-                    </thead>
-                    <tbody>
-                        ${sortedEstimates.map(estimate => `
-                            <tr>
-                                <td>${UIService.formatCategoryName(estimate.category)}</td>
-                                <td>${UIService.formatMonthName(estimate.month)} ${estimate.year}</td>
-                                <td class="amount">${UIService.formatCurrency(estimate.amount)}</td>
-                                <td>
-                                    <button class="delete-button delete-estimate" data-id="${estimate.id}" title="Eliminar estimación">
-                                        <i class="fas fa-trash-alt"></i>
-                                    </button>
-                                </td>
-                            </tr>
-                        `).join('')}
-                    </tbody>
-                </table>
+                    `).join('')}
+                </tbody>
             `;
 
+            // Limpiar y actualizar el contenedor
+            container.innerHTML = '';
+            container.appendChild(table);
+
             // Agregar event listeners para los botones de eliminar
-            container.querySelectorAll('.delete-estimate').forEach(button => {
+            container.querySelectorAll('.delete-button').forEach(button => {
                 button.addEventListener('click', async (e) => {
-                    const id = parseInt(e.target.closest('.delete-estimate').dataset.id);
-                    if (confirm('¿Estás seguro de que deseas eliminar este gasto estimado?')) {
-                        try {
-                            await EstimateService.deleteEstimate(id);
-                            await this.updateEstimatesList(estimates.filter(e => e.id !== id));
-                            UIService.showSuccess('Estimación eliminada correctamente');
-                        } catch (error) {
-                            console.error('Error al eliminar estimación:', error);
-                            UIService.showError('Error al eliminar la estimación');
-                        }
+                    const id = parseInt(e.currentTarget.dataset.id);
+                    try {
+                        await EstimateService.deleteEstimate(id);
+                        const updatedEstimates = await EstimateService.getEstimates();
+                        await this.updateEstimatesList(updatedEstimates);
+                        UIService.showSuccess('Gasto estimado eliminado correctamente');
+                    } catch (error) {
+                        console.error('Error al eliminar gasto estimado:', error);
+                        UIService.showError('Error al eliminar el gasto estimado');
                     }
                 });
             });
         } catch (error) {
-            console.error('Error al actualizar la lista de estimaciones:', error);
-            throw error;
+            console.error('Error al actualizar lista de gastos estimados:', error);
+            UIService.showError('Error al cargar los gastos estimados');
         }
     }
 
