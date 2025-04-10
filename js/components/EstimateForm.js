@@ -117,38 +117,48 @@ export class EstimateForm {
         const container = document.createElement('div');
         container.className = 'form-container';
         
+        // Obtener las categorías disponibles
+        const categories = await CategoryService.getCategories();
+        const expenseCategories = categories.filter(category => category.type === 'expense');
+        
+        // Obtener el año actual y calcular los años a mostrar
+        const currentYear = new Date().getFullYear();
+        const years = [currentYear - 1, currentYear, currentYear + 1];
+        
         container.innerHTML = `
             <h3>Nuevo Gasto Estimado</h3>
             <form id="estimate-form">
                 <select id="estimate-category" required>
                     <option value="">Seleccione categoría</option>
-                    <option value="food">Alimentación</option>
-                    <option value="transport">Transporte</option>
-                    <option value="entertainment">Ocio</option>
-                    <option value="housing">Vivienda</option>
+                    ${expenseCategories.map(category => `
+                        <option value="${category.name}">${category.name}</option>
+                    `).join('')}
                 </select>
                 <input type="number" id="estimate-amount" placeholder="Monto estimado" step="0.01" required>
-                <select id="estimate-month" required>
-                    <option value="">Seleccione mes</option>
-                    <option value="1">Enero</option>
-                    <option value="2">Febrero</option>
-                    <option value="3">Marzo</option>
-                    <option value="4">Abril</option>
-                    <option value="5">Mayo</option>
-                    <option value="6">Junio</option>
-                    <option value="7">Julio</option>
-                    <option value="8">Agosto</option>
-                    <option value="9">Septiembre</option>
-                    <option value="10">Octubre</option>
-                    <option value="11">Noviembre</option>
-                    <option value="12">Diciembre</option>
-                </select>
-                <select id="estimate-year" required>
-                    <option value="">Seleccione año</option>
-                    <option value="2024">2024</option>
-                    <option value="2025">2025</option>
-                </select>
-                <button type="submit">Agregar Estimación</button>
+                <div class="date-selectors">
+                    <select id="estimate-month" required>
+                        <option value="">Seleccione mes</option>
+                        <option value="1">Enero</option>
+                        <option value="2">Febrero</option>
+                        <option value="3">Marzo</option>
+                        <option value="4">Abril</option>
+                        <option value="5">Mayo</option>
+                        <option value="6">Junio</option>
+                        <option value="7">Julio</option>
+                        <option value="8">Agosto</option>
+                        <option value="9">Septiembre</option>
+                        <option value="10">Octubre</option>
+                        <option value="11">Noviembre</option>
+                        <option value="12">Diciembre</option>
+                    </select>
+                    <select id="estimate-year" required>
+                        <option value="">Seleccione año</option>
+                        ${years.map(year => `
+                            <option value="${year}">${year}</option>
+                        `).join('')}
+                    </select>
+                </div>
+                <button type="submit">Agregar</button>
             </form>
             <div class="estimates-list"></div>
         `;

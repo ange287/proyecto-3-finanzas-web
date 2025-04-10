@@ -143,7 +143,14 @@ export class TransactionService {
                 }
             });
 
-            UIService.updateBalance(balance, income, expense);
+            // Actualizar el balance en la interfaz
+            const balanceElement = document.querySelector('.balance .amount');
+            const incomeElement = document.querySelector('.summary-item .income');
+            const expenseElement = document.querySelector('.summary-item .expense');
+
+            if (balanceElement) balanceElement.textContent = UIService.formatCurrency(balance);
+            if (incomeElement) incomeElement.textContent = UIService.formatCurrency(income);
+            if (expenseElement) expenseElement.textContent = UIService.formatCurrency(expense);
         } catch (error) {
             console.error('Error al actualizar balance:', error);
             throw error;

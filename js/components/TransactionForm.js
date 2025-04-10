@@ -88,15 +88,13 @@ export class TransactionForm {
                     <tbody>
                         ${sortedTransactions.map(transaction => `
                             <tr class="${transaction.type}">
-                                <td>${UIService.formatDate(transaction.date)}</td>
-                                <td>${UIService.formatCategoryName(transaction.category)}</td>
-                                <td>${transaction.description || '-'}</td>
-                                <td class="amount ${transaction.type}">
-                                    ${transaction.type === 'income' ? '+' : '-'}${UIService.formatCurrency(transaction.amount)}
-                                </td>
+                                <td>${new Date(transaction.date).toLocaleDateString()}</td>
+                                <td>${transaction.category}</td>
+                                <td>${transaction.description || ''}</td>
+                                <td class="amount">${UIService.formatCurrency(transaction.amount)}</td>
                                 <td>
-                                    <button class="delete-button delete-transaction" data-id="${transaction.id}" title="Eliminar transacción">
-                                        <i class="fas fa-trash-alt"></i>
+                                    <button class="delete-button" data-id="${transaction.id}">
+                                        <i class="fas fa-trash"></i>
                                     </button>
                                 </td>
                             </tr>
@@ -106,24 +104,24 @@ export class TransactionForm {
             `;
 
             // Agregar event listeners para los botones de eliminar
-            container.querySelectorAll('.delete-transaction').forEach(button => {
+            container.querySelectorAll('.delete-button').forEach(button => {
                 button.addEventListener('click', async (e) => {
-                    const id = parseInt(e.target.closest('.delete-transaction').dataset.id);
-                    if (confirm('¿Estás seguro de que deseas eliminar esta transacción?')) {
-                        try {
-                            await TransactionService.deleteTransaction(id);
-                            await this.updateTransactionsList(transactions.filter(t => t.id !== id));
-                            UIService.showSuccess('Transacción eliminada correctamente');
-                        } catch (error) {
-                            console.error('Error al eliminar transacción:', error);
-                            UIService.showError('Error al eliminar la transacción');
-                        }
+                    const id = parseInt(e.currentTarget.dataset.id);
+                    try {
+                        await TransactionService.deleteTransaction(id);
+                        const updatedTransactions = await TransactionService.getTransactions();
+                        await this.updateTransactionsList(updatedTransactions);
+                        await TransactionService.updateBalance(updatedTransactions); // Actualizar balance
+                        UIService.showSuccess('Transacción eliminada correctamente');
+                    } catch (error) {
+                        console.error('Error al eliminar transacción:', error);
+                        UIService.showError('Error al eliminar la transacción');
                     }
                 });
             });
         } catch (error) {
-            console.error('Error al actualizar la lista de transacciones:', error);
-            throw error;
+            console.error('Error al actualizar lista de transacciones:', error);
+            UIService.showError('Error al cargar las transacciones');
         }
     }
 
