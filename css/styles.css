@@ -42,6 +42,8 @@ body {
     display: flex;
     flex-direction: column;
     gap: 2rem;
+    z-index: 1000;
+    transition: transform 0.3s ease;
 }
 
 /* Contenido principal */
@@ -886,4 +888,416 @@ select.form-control {
 
 #estimate-form button:hover {
     background-color: var(--secondary-color);
+}
+
+/* Media Queries */
+@media (max-width: 1200px) {
+    .forms-container {
+        grid-template-columns: 1fr;
+    }
+    
+    .tabs-container {
+        padding: 1rem;
+    }
+}
+
+@media (max-width: 992px) {
+    .balance-summary {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .filters {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .filters select,
+    .filters button {
+        width: 100%;
+    }
+}
+
+@media (max-width: 768px) {
+    :root {
+        --sidebar-width: 0;
+    }
+    
+    #app {
+        flex-direction: column;
+    }
+    
+    .sidebar {
+        width: 100%;
+        height: auto;
+        position: relative;
+        padding: 1rem;
+    }
+    
+    .main-content {
+        margin-left: 0;
+        padding: 1rem;
+    }
+    
+    .menu {
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+    
+    .menu-item {
+        padding: 0.5rem 1rem;
+    }
+    
+    .balance {
+        margin-bottom: 1rem;
+    }
+    
+    .charts-container {
+        grid-template-columns: 1fr;
+    }
+    
+    .data-table {
+        display: block;
+        overflow-x: auto;
+    }
+    
+    .form-container {
+        padding: 1rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .summary-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+    
+    .form-control {
+        font-size: 16px; /* Evita el zoom en iOS */
+    }
+    
+    .date-selectors {
+        flex-direction: column;
+    }
+    
+    .chart-section {
+        padding: 1rem;
+    }
+    
+    .chart-section canvas {
+        max-width: 100%;
+    }
+}
+
+/* Estilos para dispositivos móviles en orientación horizontal */
+@media (max-height: 600px) and (orientation: landscape) {
+    .sidebar {
+        height: 100vh;
+        overflow-y: auto;
+    }
+    
+    .menu {
+        flex-direction: column;
+    }
+}
+
+/* Media Queries para teléfonos pequeños */
+@media (max-width: 390px) {
+    :root {
+        --sidebar-width: 0;
+        --border-radius: 6px;
+        --box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    }
+
+    body {
+        font-size: 14px;
+    }
+
+    #app {
+        padding: 0;
+    }
+
+    .sidebar {
+        padding: 0.5rem;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+    }
+
+    .menu {
+        flex-direction: row;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        padding: 0.5rem 0;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .menu-item {
+        padding: 0.5rem;
+        white-space: nowrap;
+        flex: 0 0 auto;
+    }
+
+    .menu-item i {
+        margin-right: 0.25rem;
+    }
+
+    .main-content {
+        padding: 0.5rem;
+    }
+
+    .balance {
+        padding: 0.5rem;
+        margin: 0.5rem 0;
+    }
+
+    .balance h2 {
+        font-size: 1rem;
+    }
+
+    .balance .amount {
+        font-size: 1.5rem;
+    }
+
+    .balance-summary {
+        padding: 0.5rem;
+        margin: 0.5rem 0;
+    }
+
+    .balance-item {
+        font-size: 1rem;
+    }
+
+    .form-container {
+        padding: 0.75rem;
+    }
+
+    input, select {
+        padding: 0.5rem;
+        font-size: 14px;
+    }
+
+    button {
+        padding: 0.5rem;
+        font-size: 14px;
+    }
+
+    .data-table {
+        font-size: 12px;
+    }
+
+    .data-table th,
+    .data-table td {
+        padding: 0.5rem;
+    }
+
+    .chart-section {
+        padding: 0.5rem;
+    }
+
+    .chart-section canvas {
+        height: 200px !important;
+    }
+
+    .filters {
+        padding: 0.5rem;
+    }
+
+    .filters select,
+    .filters button {
+        padding: 0.5rem;
+        font-size: 14px;
+    }
+
+    .error-message,
+    .success-message {
+        padding: 0.5rem 1rem;
+        font-size: 14px;
+    }
+
+    .form-card {
+        padding: 1rem;
+        margin: 0.5rem;
+    }
+
+    .form-card h2 {
+        font-size: 1.2rem;
+        margin-bottom: 1rem;
+    }
+
+    .transactions-list,
+    .estimates-list,
+    .categories-list {
+        max-height: 300px;
+    }
+}
+
+/* Ajustes para pantallas muy pequeñas */
+@media (max-width: 320px) {
+    .menu-item {
+        padding: 0.25rem;
+    }
+
+    .menu-item i {
+        font-size: 0.8rem;
+    }
+
+    .balance .amount {
+        font-size: 1.2rem;
+    }
+
+    .data-table {
+        font-size: 11px;
+    }
+}
+
+/* Ajustes para pantallas altas */
+@media (min-height: 844px) and (max-width: 390px) {
+    .transactions-list,
+    .estimates-list,
+    .categories-list {
+        max-height: 400px;
+    }
+
+    .chart-section canvas {
+        height: 250px !important;
+    }
+}
+
+/* Botón de menú móvil */
+.menu-toggle {
+    display: none;
+    position: fixed;
+    top: 0.5rem;
+    left: 0.5rem;
+    z-index: 1001;
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    cursor: pointer;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.3s ease;
+}
+
+.menu-toggle i {
+    font-size: 1.2rem;
+    transition: transform 0.3s ease;
+}
+
+.menu-toggle:active {
+    transform: scale(0.95);
+}
+
+.menu-toggle.active i {
+    transform: rotate(180deg);
+}
+
+/* Overlay para el fondo oscuro */
+.overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.overlay.active {
+    opacity: 1;
+    display: block;
+}
+
+/* Media Query para pantallas menores a 700px */
+@media (max-width: 700px) {
+    .menu-toggle {
+        display: flex !important;
+    }
+
+    .sidebar {
+        transform: translateX(-100%);
+        width: 280px;
+        height: 100vh;
+        position: fixed;
+        top: 0;
+        left: 0;
+        z-index: 1000;
+        background-color: var(--primary-color);
+        box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2);
+    }
+
+    .sidebar.active {
+        transform: translateX(0);
+    }
+
+    .main-content {
+        margin-left: 0;
+        width: 100%;
+        padding: 0.5rem;
+        padding-top: 3.5rem;
+    }
+
+    /* Overlay cuando el menú está abierto */
+    .overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 999;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .overlay.active {
+        display: block;
+        opacity: 1;
+    }
+
+    /* Ajustes del menú para móvil */
+    .menu {
+        margin-top: 1rem;
+        flex-direction: column !important;
+    }
+
+    .menu-item {
+        padding: 0.75rem 1rem;
+        font-size: 1.1rem;
+        width: 100%;
+        text-align: left;
+    }
+
+    .menu-item i {
+        width: 24px;
+        margin-right: 1rem;
+    }
+
+    /* Prevenir scroll cuando el menú está abierto */
+    body.sidebar-open {
+        overflow: hidden;
+    }
+}
+
+/* Ajustes para altura específica */
+@media (max-height: 930px) and (max-width: 430px) {
+    .sidebar {
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .menu {
+        padding-bottom: 2rem;
+    }
 }

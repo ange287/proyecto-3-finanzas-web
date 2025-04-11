@@ -18,17 +18,69 @@ class App {
         this.chartPanel = new ChartPanel();
         this.categoryManager = new CategoryManager(this.handleCategoryChange.bind(this));
         this.sidebar = new Sidebar(this.handleTabChange.bind(this));
+        this.initializeMobileMenu = this.initializeMobileMenu.bind(this);
+    }
+
+    initializeMobileMenu() {
+        const menuToggle = document.getElementById('menuToggle');
+        const sidebar = document.querySelector('.sidebar');
+        const overlay = document.getElementById('overlay');
+        const body = document.body;
+
+        if (!menuToggle || !sidebar || !overlay) {
+            console.error('Elementos del menú no encontrados');
+            return;
+        }
+
+        function toggleMenu() {
+            menuToggle.classList.toggle('active');
+            sidebar.classList.toggle('active');
+            overlay.classList.toggle('active');
+            body.classList.toggle('sidebar-open');
+        }
+
+        // Evento para el botón de menú
+        menuToggle.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            toggleMenu();
+        });
+
+        // Cerrar menú al hacer clic en el overlay
+        overlay.addEventListener('click', () => {
+            toggleMenu();
+        });
+
+        // Cerrar menú al hacer clic en enlaces del menú en móvil
+        const menuLinks = document.querySelectorAll('.menu-item');
+        menuLinks.forEach(link => {
+            link.addEventListener('click', () => {
+                if (window.innerWidth <= 700) {
+                    toggleMenu();
+                }
+            });
+        });
+
+        // Cerrar menú al redimensionar la ventana
+        window.addEventListener('resize', () => {
+            if (window.innerWidth > 700 && sidebar.classList.contains('active')) {
+                toggleMenu();
+            }
+        });
     }
 
     async init() {
         try {
             console.log('Iniciando aplicación...');
-            await initDB(); // Asegúrate de que la base de datos esté inicializada
+            await initDB();
             console.log('Base de datos inicializada correctamente');
             await this.render();
             console.log('Interfaz renderizada');
             await this.loadInitialData();
             console.log('Datos iniciales cargados');
+            
+            // Inicializar el menú móvil después de que todo esté cargado
+            this.initializeMobileMenu();
         } catch (error) {
             console.error('Error al inicializar la aplicación:', error);
             UIService.showError(`Error al inicializar la aplicación: ${error.message}`);
