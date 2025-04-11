@@ -18,7 +18,7 @@ class App {
         this.chartPanel = new ChartPanel();
         this.categoryManager = new CategoryManager(this.handleCategoryChange.bind(this));
         this.sidebar = new Sidebar(this.handleTabChange.bind(this));
-        this.initializeMobileMenu = this.initializeMobileMenu.bind(this);
+        this.handleResize = this.handleResize.bind(this);
     }
 
     initializeMobileMenu() {
@@ -32,41 +32,41 @@ class App {
             return;
         }
 
-        function toggleMenu() {
+        const toggleMenu = () => {
             menuToggle.classList.toggle('active');
             sidebar.classList.toggle('active');
             overlay.classList.toggle('active');
             body.classList.toggle('sidebar-open');
-        }
+        };
 
-        // Evento para el botón de menú
-        menuToggle.addEventListener('click', (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            toggleMenu();
-        });
+        // Remover eventos anteriores
+        menuToggle.removeEventListener('click', this.toggleMenuHandler);
+        overlay.removeEventListener('click', this.toggleMenuHandler);
 
-        // Cerrar menú al hacer clic en el overlay
-        overlay.addEventListener('click', () => {
-            toggleMenu();
-        });
-
-        // Cerrar menú al hacer clic en enlaces del menú en móvil
-        const menuLinks = document.querySelectorAll('.menu-item');
-        menuLinks.forEach(link => {
-            link.addEventListener('click', () => {
-                if (window.innerWidth <= 700) {
-                    toggleMenu();
-                }
-            });
-        });
-
-        // Cerrar menú al redimensionar la ventana
-        window.addEventListener('resize', () => {
-            if (window.innerWidth > 700 && sidebar.classList.contains('active')) {
-                toggleMenu();
+        // Guardar la referencia de la función
+        this.toggleMenuHandler = (e) => {
+            if (e) {
+                e.preventDefault();
+                e.stopPropagation();
             }
-        });
+            toggleMenu();
+        };
+
+        // Agregar nuevos eventos
+        menuToggle.addEventListener('click', this.toggleMenuHandler);
+        overlay.addEventListener('click', this.toggleMenuHandler);
+
+        // Manejar el redimensionamiento de la ventana
+        window.removeEventListener('resize', this.handleResize);
+        window.addEventListener('resize', this.handleResize);
+    }
+
+    handleResize() {
+        const sidebar = document.querySelector('.sidebar');
+        const menuToggle = document.getElementById('menuToggle');
+        if (window.innerWidth > 700 && sidebar && sidebar.classList.contains('active')) {
+            this.toggleMenuHandler();
+        }
     }
 
     async init() {
@@ -136,73 +136,69 @@ class App {
         const mainContent = document.querySelector('.main-content');
         if (!mainContent) return;
 
-        // No limpiar el contenido si la pestaña ya está cargada
-        const existingTab = mainContent.querySelector(`[data-tab="${tab}"]`);
-        if (existingTab) {
-            // Ocultar todas las pestañas y mostrar la seleccionada
-            mainContent.querySelectorAll('[data-tab]').forEach(t => {
-                t.style.display = 'none';
-            });
-            existingTab.style.display = 'block';
-            
-            // Recargar datos si es necesario
+        // Ocultar todas las pestañas
+        mainContent.querySelectorAll('[data-tab]').forEach(t => {
+            t.style.display = 'none';
+        });
+
+        // Buscar o crear la pestaña
+        let tabContainer = mainContent.querySelector(`[data-tab="${tab}"]`);
+        
+        if (!tabContainer) {
+            tabContainer = document.createElement('div');
+            tabContainer.dataset.tab = tab;
+            tabContainer.style.display = 'block';
+            mainContent.appendChild(tabContainer);
+
+            let content;
             switch (tab) {
                 case 'transactions':
-                    const transactions = await TransactionService.getTransactions();
-                    await this.transactionForm.updateTransactionsList(transactions);
+                    content = await this.transactionForm.render();
                     break;
                 case 'estimates':
-                    const estimates = await EstimateService.getEstimates();
-                    await this.estimateForm.updateEstimatesList(estimates);
+                    content = await this.estimateForm.render();
                     break;
                 case 'categories':
-                    await this.categoryManager.updateCategoriesList();
+                    content = await this.categoryManager.render();
                     break;
                 case 'charts':
-                    await this.updateCharts();
+                    content = await this.chartPanel.render();
                     break;
             }
-            return;
+
+            if (content) {
+                tabContainer.appendChild(content);
+            }
         }
 
-        // Crear un nuevo contenedor para la pestaña
-        const tabContainer = document.createElement('div');
-        tabContainer.dataset.tab = tab;
+        // Mostrar la pestaña actual
         tabContainer.style.display = 'block';
 
-        let content;
+        // Actualizar datos
         switch (tab) {
             case 'transactions':
-                content = await this.transactionForm.render();
                 const transactions = await TransactionService.getTransactions();
                 await this.transactionForm.updateTransactionsList(transactions);
                 break;
             case 'estimates':
-                content = await this.estimateForm.render();
                 const estimates = await EstimateService.getEstimates();
                 await this.estimateForm.updateEstimatesList(estimates);
                 break;
             case 'categories':
-                content = await this.categoryManager.render();
                 await this.categoryManager.updateCategoriesList();
                 break;
             case 'charts':
-                content = await this.chartPanel.render();
-                setTimeout(async () => {
-                    await this.updateCharts();
-                }, 0);
+                await this.updateCharts();
                 break;
         }
 
-        if (content) {
-            tabContainer.appendChild(content);
-            mainContent.appendChild(tabContainer);
+        // Cerrar el menú móvil si está abierto
+        if (window.innerWidth <= 700) {
+            const sidebar = document.querySelector('.sidebar');
+            if (sidebar && sidebar.classList.contains('active')) {
+                this.toggleMenuHandler();
+            }
         }
-
-        // Ocultar todas las pestañas excepto la actual
-        mainContent.querySelectorAll('[data-tab]').forEach(t => {
-            t.style.display = t.dataset.tab === tab ? 'block' : 'none';
-        });
     }
 
     async handleTransactionSubmit(transactionData) {
@@ -260,6 +256,9 @@ class App {
                 });
                 filtersContainer.appendChild(filters);
             }
+
+            // Reinicializar el menú móvil después de cargar los datos
+            this.initializeMobileMenu();
         } catch (error) {
             console.error('Error al cargar datos iniciales:', error);
             UIService.showError('Error al cargar los datos');
