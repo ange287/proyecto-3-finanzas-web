@@ -286,27 +286,36 @@ button:hover {
 /* Charts Container */
 .charts-container {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 2rem;
-    margin-top: 2rem;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin: 1rem auto;
+    max-width: 1000px;
+    padding: 0 1rem;
 }
 
 .chart-section {
     background-color: white;
     border-radius: var(--border-radius);
-    padding: 1.5rem;
+    padding: 1rem;
     box-shadow: var(--box-shadow);
+    max-width: 450px;
+    margin: 0 auto;
+    width: 100%;
 }
 
 .chart-section h2 {
-    margin-bottom: 1rem;
+    margin-bottom: 0.75rem;
     color: var(--text-color);
-    font-size: 1.1rem;
+    font-size: 1rem;
+    text-align: center;
 }
 
 .chart-section canvas {
     width: 100% !important;
-    height: 300px !important;
+    height: 250px !important;
+    max-width: 400px !important;
+    margin: 0 auto;
+    display: block;
 }
 
 /* Animations */
@@ -505,12 +514,13 @@ button:hover {
     position: fixed;
     top: 1rem;
     right: 1rem;
-    padding: 1rem 2rem;
+    padding: 0.75rem 1.25rem;
     border-radius: var(--border-radius);
     color: white;
     z-index: 2000;
     animation: slideIn 0.3s ease-out;
-    max-width: 80%;
+    max-width: 300px;
+    font-size: 0.9rem;
 }
 
 .error-message {
@@ -540,8 +550,8 @@ button:hover {
         bottom: 1rem;
         right: 1rem;
         left: 1rem;
-        padding: 0.75rem 1rem;
-        font-size: 0.9rem;
+        padding: 0.5rem 0.75rem;
+        font-size: 0.85rem;
         max-width: calc(100% - 2rem);
         text-align: center;
         border-radius: 4px;
@@ -1347,11 +1357,12 @@ select.form-control {
     .charts-container {
         grid-template-columns: 1fr;
         gap: 1rem;
-        margin-top: 1rem;
+        padding: 0 0.5rem;
     }
 
     .chart-section {
         padding: 0.75rem;
+        max-width: 350px;
     }
 
     .chart-section h2 {
@@ -1361,6 +1372,7 @@ select.form-control {
 
     .chart-section canvas {
         height: 200px !important;
+        max-width: 300px !important;
     }
 }
 
@@ -1373,6 +1385,7 @@ select.form-control {
 
     .chart-section {
         padding: 0.5rem;
+        max-width: 300px;
     }
 
     .chart-section h2 {
@@ -1382,12 +1395,18 @@ select.form-control {
 
     .chart-section canvas {
         height: 180px !important;
+        max-width: 250px !important;
     }
 }
 
 /* Media Query para pantallas extra pequeñas */
 @media (max-width: 320px) {
+    .chart-section {
+        max-width: 280px;
+    }
+
     .chart-section canvas {
         height: 160px !important;
+        max-width: 230px !important;
     }
 }
