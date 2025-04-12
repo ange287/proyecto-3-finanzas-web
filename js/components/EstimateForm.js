@@ -7,6 +7,17 @@ export class EstimateForm {
         this.onSubmit = onSubmit;
     }
 
+    setDefaultMonthYear() {
+        const today = new Date();
+        const monthSelect = document.getElementById('estimate-month');
+        const yearSelect = document.getElementById('estimate-year');
+        
+        if (monthSelect && yearSelect) {
+            monthSelect.value = (today.getMonth() + 1).toString();
+            yearSelect.value = today.getFullYear().toString();
+        }
+    }
+
     handleSubmit(event) {
         event.preventDefault();
         
@@ -102,27 +113,15 @@ export class EstimateForm {
         }
     }
 
-    setDefaultMonthYear() {
-        const today = new Date();
-        const monthSelect = document.getElementById('estimate-month');
-        const yearSelect = document.getElementById('estimate-year');
-        
-        if (monthSelect && yearSelect) {
-            monthSelect.value = (today.getMonth() + 1).toString();
-            yearSelect.value = today.getFullYear().toString();
-        }
-    }
-
     async render() {
         const container = document.createElement('div');
         container.className = 'form-container';
         
-        // Obtener las categorías disponibles
         const categories = await CategoryService.getCategories();
         const expenseCategories = categories.filter(category => category.type === 'expense');
         
-        // Obtener el año actual y calcular los años a mostrar
-        const currentYear = new Date().getFullYear();
+        const today = new Date();
+        const currentYear = today.getFullYear();
         const years = [currentYear - 1, currentYear, currentYear + 1];
         
         container.innerHTML = `
@@ -165,14 +164,14 @@ export class EstimateForm {
 
         const form = container.querySelector('form');
         form.addEventListener('submit', (e) => this.handleSubmit(e));
-        
-        // Establecer mes y año por defecto
-        setTimeout(() => this.setDefaultMonthYear(), 0);
+
+        // Establecer mes y año actual por defecto
+        this.setDefaultMonthYear();
 
         // Cargar la lista de estimaciones automáticamente al renderizar
         const estimates = await EstimateService.getEstimates();
         await this.updateEstimatesList(estimates);
 
-        return container; // Asegúrate de devolver el contenedor
+        return container;
     }
 }

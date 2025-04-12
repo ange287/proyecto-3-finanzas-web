@@ -19,6 +19,27 @@ export class TransactionForm {
         };
     }
 
+    setDefaultDate() {
+        try {
+            const dateInput = document.getElementById('date');
+            if (!dateInput) {
+                console.error('No se encontró el campo de fecha');
+                return;
+            }
+            
+            const today = new Date();
+            const year = today.getFullYear();
+            const month = String(today.getMonth() + 1).padStart(2, '0');
+            const day = String(today.getDate()).padStart(2, '0');
+            const formattedDate = `${year}-${month}-${day}`;
+            
+            dateInput.value = formattedDate;
+            console.log('Fecha establecida:', formattedDate);
+        } catch (error) {
+            console.error('Error al establecer la fecha:', error);
+        }
+    }
+
     /**
      * Carga y muestra las transacciones aplicando los filtros especificados
      * @param {Object} filters - Filtros a aplicar (tipo y categoría)
@@ -46,6 +67,7 @@ export class TransactionForm {
         this.onSubmit(formData);
         event.target.reset();
         this.updateCategorySelectors();
+        this.setDefaultDate();
     }
 
     /**
@@ -203,10 +225,6 @@ export class TransactionForm {
         const form = container.querySelector('form');
         form.addEventListener('submit', (e) => this.handleSubmit(e));
 
-        // Establecer la fecha actual por defecto
-        const dateInput = container.querySelector('#date');
-        dateInput.valueAsDate = new Date();
-
         // Agregar los filtros después del formulario
         const filters = await this.renderFilters(async (newFilters) => {
             await this.loadInitialData(newFilters);
@@ -217,6 +235,9 @@ export class TransactionForm {
         const listContainer = document.createElement('div');
         listContainer.className = 'transactions-list';
         container.appendChild(listContainer);
+
+        // Asegurarnos de que el DOM esté listo antes de establecer la fecha
+        setTimeout(() => this.setDefaultDate(), 0);
 
         return container;
     }

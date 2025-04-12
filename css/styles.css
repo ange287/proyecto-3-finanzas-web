@@ -296,24 +296,24 @@ button:hover {
 .chart-section {
     background-color: white;
     border-radius: var(--border-radius);
-    padding: 1rem;
+    padding: 1.5rem;
     box-shadow: var(--box-shadow);
-    max-width: 450px;
+    max-width: 600px;
     margin: 0 auto;
     width: 100%;
 }
 
 .chart-section h2 {
-    margin-bottom: 0.75rem;
+    margin-bottom: 1.5rem;
     color: var(--text-color);
-    font-size: 1rem;
+    font-size: 1.2rem;
     text-align: center;
 }
 
 .chart-section canvas {
     width: 100% !important;
-    height: 250px !important;
-    max-width: 400px !important;
+    height: 350px !important;
+    max-width: 550px !important;
     margin: 0 auto;
     display: block;
 }
@@ -406,6 +406,9 @@ button:hover {
     padding: 15px;
     background-color: var(--card-background);
     border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
 }
 
 .category-form h3 {
@@ -612,9 +615,17 @@ button:hover {
 }
 
 .date-selectors {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.date-selectors select {
+    flex: 1;
+    padding: 0.8rem;
+    border: 1px solid #ddd;
+    border-radius: var(--border-radius);
+    font-size: 1rem;
 }
 
 .submit-button {
@@ -650,7 +661,8 @@ select.form-control {
     }
 
     .date-selectors {
-        grid-template-columns: 1fr;
+        flex-direction: column;
+        gap: 0.5rem;
     }
 }
 
@@ -912,13 +924,16 @@ select.form-control {
 
 #estimate-form .date-selectors {
     display: flex;
-    gap: 0.5rem;
+    gap: 1rem;
     align-items: center;
+    flex-wrap: nowrap;
 }
 
 #estimate-form .date-selectors select {
-    width: auto;
+    flex: 1;
     min-width: 120px;
+    max-width: 200px;
+    width: auto;
 }
 
 #estimate-form #estimate-category,
@@ -1408,5 +1423,65 @@ select.form-control {
     .chart-section canvas {
         height: 160px !important;
         max-width: 230px !important;
+    }
+}
+
+.category-input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.category-input-group input {
+    width: 100%;
+}
+
+.category-input-group button {
+    width: 100%;
+    white-space: nowrap;
+    padding: 0.8rem 1.5rem;
+}
+
+.restore-button {
+    width: 100%;
+    margin-top: 0.5rem;
+}
+
+/* Media Query para pantallas menores o iguales a 700px */
+@media (max-width: 700px) {
+    .category-input-group {
+        flex-direction: row;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .category-input-group button {
+        width: auto;
+        white-space: nowrap;
+    }
+}
+
+/* Media Query para pantallas muy pequeñas */
+@media (max-width: 390px) {
+    .category-input-group {
+        flex-direction: row;
+        gap: 0.5rem;
+    }
+    
+    .category-input-group button {
+        padding: 0.8rem 1rem;
+        font-size: 0.9rem;
+    }
+}
+
+/* Mantener los selectores en línea incluso en móvil */
+@media (max-width: 576px) {
+    #estimate-form .date-selectors {
+        flex-direction: row;
+        gap: 0.5rem;
+    }
+    
+    #estimate-form .date-selectors select {
+        min-width: 100px;
     }
 }

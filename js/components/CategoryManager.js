@@ -148,30 +148,31 @@ export class CategoryManager {
         container.innerHTML = `
             <h2>Gestión de Categorías</h2>
             <div class="category-form">
-                <input type="text" id="category-name" placeholder="Nueva categoría" required>
-                <button type="button" class="add-category">Agregar</button>
+                <div class="category-input-group">
+                    <input type="text" id="category-name" placeholder="Nueva categoría" required>
+                    <button type="button" class="add-category">Agregar</button>
+                </div>
+                <button type="button" class="restore-button">Restaurar predefinidas</button>
             </div>
-            <button type="button" class="restore-defaults">Restaurar predefinidas</button>
-            <div class="categories-list"></div>
+            <div class="categories-list">
+                <!-- Las categorías se agregarán dinámicamente aquí -->
+            </div>
         `;
 
-        // Event listeners
+        // Agregar event listeners
         const addButton = container.querySelector('.add-category');
-        addButton.addEventListener('click', (e) => this.handleSubmit(e));
-
+        const restoreButton = container.querySelector('.restore-button');
         const input = container.querySelector('#category-name');
+
+        addButton.addEventListener('click', () => this.handleSubmit({ preventDefault: () => {} }));
         input.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
-                e.preventDefault();
-                this.handleSubmit(e);
+                this.handleSubmit({ preventDefault: () => {} });
             }
         });
-
-        const restoreButton = container.querySelector('.restore-defaults');
         restoreButton.addEventListener('click', () => this.handleRestoreDefaults());
 
-        // Asegurar categorías predefinidas y cargar la lista
-        await this.ensureDefaultCategories();
+        // Cargar categorías iniciales
         await this.updateCategoriesList();
 
         return container;
